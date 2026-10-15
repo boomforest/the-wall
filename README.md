@@ -1,4 +1,10 @@
-# The Wall
+# Flow tools
+
+Stuff that keeps us in flow. Take it, improve it, and open an issue or PR if you make a big leap.
+
+---
+
+## The Wall
 
 A post-it wall that sorts itself.
 
