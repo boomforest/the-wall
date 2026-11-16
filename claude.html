@@ -1,0 +1,509 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Our Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a cork wall. Notes sort themselves into four rows by heat (on fire, coming up, on the wall, off your brain). Heat = due date x stakes, or a trigger date. */
+:root{
+  --cork:#b98d5e; --cork-dot:#a77b4d; --frame:#6b4a2b; --ink:#26201a; --label:#fff7ea; --label-muted:#f0dcc2;
+  --red:#ff8a7a; --red-edge:#d9473a; --amber:#ffc565; --amber-edge:#d48a13; --yellow:#fff27d; --yellow-edge:#cfbd2a;
+  --blue:#b5dcf7; --blue-edge:#5f9fcc; --done:#d9e8cf; --done-edge:#86a872;
+  --panel:#fffaf2; --panel-line:#e2d3bf; --muted:#6c5d4d; --focus:#1f5fbf;
+  --pad:#fdf6c8; --pad-line:#c9d8ea; --pad-top:#d9534f;
+  --hand:"Kalam","Comic Sans MS",cursive; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --cork:#3b2c1f; --cork-dot:#47362a; --frame:#1d150e; --label:#f5e6d3; --label-muted:#c4ab8f;
+  --panel:#2a221b; --panel-line:#4a3c30; --muted:#c9b7a2; --focus:#8fb8ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --cork:#3b2c1f; --cork-dot:#47362a; --frame:#1d150e; --label:#f5e6d3; --label-muted:#c4ab8f;
+  --panel:#2a221b; --panel-line:#4a3c30; --muted:#c9b7a2; --focus:#8fb8ff; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--cork);background-image:radial-gradient(var(--cork-dot) 1.2px,transparent 1.3px),radial-gradient(var(--cork-dot) 1px,transparent 1.1px);background-size:14px 14px,23px 23px;background-position:0 0,7px 11px;color:var(--label);font:16px/1.45 var(--body);min-height:100vh}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+h1{font:700 clamp(34px,6vw,52px)/1 var(--hand);margin:0;letter-spacing:.01em;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.sub{margin:6px 0 0;color:var(--label-muted);max-width:60ch}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:999px;padding:9px 16px;font-weight:700;background:var(--label);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--label);box-shadow:inset 0 0 0 2px var(--label-muted)}
+.btn[aria-pressed="true"]{background:var(--yellow);color:var(--ink);box-shadow:none}
+.btn:focus-visible,.note:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.summary{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.22);font-weight:700}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+section.row{margin-top:30px}
+section.row h2{font:700 26px/1.1 var(--hand);margin:0 0 4px;display:flex;align-items:center;gap:10px}
+section.row>p{margin:0 0 14px;color:var(--label-muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px 18px;align-items:start}
+.empty{color:var(--label-muted);font-style:italic;font-size:14px;padding:4px 0}
+.note{position:relative;text-align:left;border:0;color:var(--ink);background:var(--yellow);padding:22px 16px 14px;min-height:150px;box-shadow:0 1px 1px rgba(0,0,0,.15),0 8px 14px -6px rgba(0,0,0,.45);transform:rotate(var(--tilt,0deg));transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column;gap:8px;width:100%}
+.note::before{content:"";position:absolute;top:-8px;left:50%;width:76px;height:20px;margin-left:-38px;background:rgba(255,255,255,.45);box-shadow:0 1px 2px rgba(0,0,0,.12);transform:rotate(-2deg)}
+.note:hover{transform:rotate(0deg) translateY(-2px);box-shadow:0 2px 2px rgba(0,0,0,.15),0 14px 20px -8px rgba(0,0,0,.5)}
+.note.red{background:var(--red)} .note.amber{background:var(--amber)} .note.yellow{background:var(--yellow)}
+.note.blue{background:var(--blue)} .note.done{background:var(--done);opacity:.85}
+.note .top{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.note .area{opacity:.75}
+.who{padding:1px 7px;border-radius:4px;background:rgba(0,0,0,.12);white-space:nowrap}
+.who.you{background:var(--ink);color:var(--yellow)}
+.note h3{margin:0;font:700 21px/1.15 var(--hand);text-wrap:balance}
+.note.done h3{text-decoration:line-through;text-decoration-thickness:2px}
+.note .detail{margin:0;font-size:14px;line-height:1.4}
+.when{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.when .left{padding:1px 8px;border-radius:999px;background:rgba(0,0,0,.12)}
+.note.red .when .left{background:var(--ink);color:var(--red)}
+.missed{margin:0;font-size:13px;padding:7px 9px;background:rgba(255,255,255,.45);border-left:4px solid var(--red-edge)}
+.missed b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.trigger{font-size:12px;opacity:.8}
+details.donebox{margin-top:30px}
+details.donebox summary{font:700 22px var(--hand);cursor:pointer}
+details.donebox .grid{margin-top:14px}
+.legend{margin-top:36px;background:rgba(0,0,0,.2);padding:14px 16px;border-radius:8px;font-size:14px;color:var(--label-muted);max-width:760px}
+.legend b{color:var(--label)}
+.legend ul{margin:6px 0 0;padding-left:20px}
+/* brain dump: a legal pad pinned to the cork */
+.dump{margin-top:26px;background:var(--pad);color:var(--ink);padding:18px 18px 16px;box-shadow:0 8px 16px -8px rgba(0,0,0,.5);background-image:linear-gradient(transparent 31px,var(--pad-line) 32px);background-size:100% 32px;border-top:28px solid var(--pad-top)}
+.dump h2{margin:-44px 0 18px;font:700 22px var(--hand);color:var(--ink)}
+.dumphint{margin:0 0 10px;font-size:14px;max-width:70ch}
+.dump textarea{width:100%;min-height:96px;font:20px/32px var(--hand);background:transparent;border:0;border-bottom:2px dashed var(--pad-line);color:var(--ink);padding:0 4px;resize:vertical}
+.dumpbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.dump .btn{background:var(--ink);color:var(--pad)}
+.dump .btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.dump .btn:disabled{opacity:.5;cursor:default}
+.dumpstatus{font-size:14px;font-weight:700}
+.prophead{margin:18px 0 12px;font:700 20px var(--hand)}
+#inboxList{margin-top:14px;font-size:14px}
+#inboxList ul{margin:6px 0 0;padding-left:20px}
+#inboxList li{margin-bottom:4px}
+/* editor */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:16px}
+@media (min-width:700px){.sheet{align-items:center}}
+.card{background:var(--panel);color:var(--ink);width:100%;max-width:560px;max-height:calc(100vh - 32px);overflow:auto;border-radius:12px;padding:20px;display:grid;gap:12px}
+:root[data-theme="dark"] .card{color:var(--label)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .card{color:var(--label)}}
+.card h2{margin:0;font:700 26px var(--hand)}
+.card label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.card input,.card select,.card textarea{font:16px var(--body);padding:9px 10px;border:1px solid var(--panel-line);border-radius:6px;background:transparent;color:inherit;width:100%}
+.card textarea{min-height:64px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+.hint{font-size:12px;color:var(--muted);font-weight:400}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:4px}
+.actions .right{display:flex;gap:8px;flex-wrap:wrap}
+.card .btn{background:var(--ink);color:var(--panel)}
+.card .btn.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px var(--panel-line)}
+.card .btn.danger{background:transparent;color:var(--red-edge);box-shadow:inset 0 0 0 2px var(--red-edge)}
+.cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:-20px;background:var(--panel);margin:-20px -20px 0;padding:16px 20px 8px;z-index:1}
+.xbtn{border:0;border-radius:999px;padding:8px 14px;font-weight:700;background:var(--panel-line);color:inherit;white-space:nowrap}
+.xbtn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.scrib{display:grid;gap:6px;padding:12px;border-radius:8px;background:var(--pad);color:#26201a}
+.scrib label{color:#5a4a3a}
+.scrib textarea{font:19px/1.4 var(--hand);border-color:#d8cba0}
+.scrib .btn{background:#26201a;color:var(--pad)}
+.scrib .hint{margin:0;color:#5a4a3a}
+.vq,.vreply{margin:0;font-size:13px;padding:7px 9px;background:rgba(255,255,255,.55);border-left:4px solid #1d3f8f}
+.vq b,.vreply b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#1d3f8f}
+.vq{border-left-style:dashed}
+.scribble{margin:0;font:600 16px/1.3 var(--hand);color:#1d3f8f;transform:rotate(-1deg)}
+.scribble::before{content:"Note: ";font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--yellow);padding:10px 16px;border-radius:999px;font-weight:700;z-index:30}
+@media (prefers-reduced-motion:reduce){.note{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Our Wall</h1>
+      <p class="sub" id="sub">Everything in motion, on one wall. Notes turn red on their own when a date gets close or a trigger date passes.</p>
+    </div>
+    <div class="tools">
+      <button class="btn ghost" id="mineBtn" aria-pressed="false">Only mine</button>
+      <button class="btn" id="addBtn">+ New note</button>
+    </div>
+  </header>
+
+  <div class="summary" id="summary"></div>
+
+  <section class="dump" aria-labelledby="dumpH">
+    <h2 id="dumpH">Brain dump</h2>
+    <p class="dumphint">Write it however it comes out: several things at once, half sentences, voice-memo style. Tap <b>Sort it</b> to turn it into notes with dates and triggers, or <b>Save for Virgil</b> to leave it for the next session.</p>
+    <textarea id="dumpText" placeholder="e.g. mayor meeting moved to the 22nd, need the building one-pager before that. also chris still hasn't signed, bug him if nothing by friday"></textarea>
+    <div class="dumpbar">
+      <button class="btn" id="sortBtn" type="button">Sort it</button>
+      <button class="btn ghost" id="saveDumpBtn" type="button">Save for Virgil</button>
+      <span class="dumpstatus" id="dumpStatus"></span>
+    </div>
+    <div id="proposal" hidden>
+      <h3 class="prophead">Here's how I'd pin that</h3>
+      <div class="grid" id="propGrid"></div>
+      <div class="dumpbar">
+        <button class="btn" id="pinAllBtn" type="button">Pin these</button>
+        <button class="btn ghost" id="discardBtn" type="button">Discard</button>
+      </div>
+    </div>
+    <div id="inboxList" hidden></div>
+  </section>
+
+  <section class="row" data-bucket="red">
+    <h2><span class="dot" style="background:var(--red)"></span>On fire</h2>
+    <p>Overdue, close to the date for how much is at stake, or a trigger date has passed.</p>
+    <div class="grid"></div>
+  </section>
+  <section class="row" data-bucket="amber">
+    <h2><span class="dot" style="background:var(--amber)"></span>Coming up</h2>
+    <p>On the radar. These turn red by themselves when it's time.</p>
+    <div class="grid"></div>
+  </section>
+  <section class="row" data-bucket="yellow">
+    <h2><span class="dot" style="background:var(--yellow)"></span>On the wall</h2>
+    <p>Real, no deadline pressing yet.</p>
+    <div class="grid"></div>
+  </section>
+  <section class="row" data-bucket="blue">
+    <h2><span class="dot" style="background:var(--blue)"></span>Off your brain</h2>
+    <p>Waiting on someone else, or parked on purpose. If a trigger date passes, the note comes back red.</p>
+    <div class="grid"></div>
+  </section>
+
+  <details class="donebox">
+    <summary>Done <span id="doneCount"></span></summary>
+    <div class="grid" id="doneGrid"></div>
+  </details>
+
+  <div class="legend">
+    <b>How notes turn red</b>
+    <ul>
+      <li><b>High stakes</b>: red 14 days before the date, orange from 30.</li>
+      <li><b>Medium</b>: red 7 days before, orange from 21.</li>
+      <li><b>Low</b>: red 3 days before, orange from 10.</li>
+      <li><b>Trigger date</b>: red on that day no matter what. Use it for "if I haven't heard back by…".</li>
+      <li>Anything of yours past its date is red, and a red note shows what happens if it slips.</li>
+      <li><b>Waiting on someone</b> or <b>parked</b>: stays blue until its trigger date, even if the due date passes.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <form class="card" id="form">
+    <div class="cardhead"><h2 id="formTitle">Note</h2><button type="button" class="xbtn" id="xBtn" aria-label="Close">Close ✕</button></div>
+    <div class="quick" id="quickRow">
+      <button type="button" class="btn ghost" data-q="done">Done</button>
+      <button type="button" class="btn ghost" data-q="week">Push 1 week</button>
+      <button type="button" class="btn ghost" data-q="park">Park it</button>
+      <button type="button" class="btn ghost" data-q="urgent">Make it urgent</button>
+    </div>
+    <div class="scrib">
+      <label>Note on this card <span class="hint">say what should change, e.g. "after the mayor meeting on the 22nd, and bug Chris if nothing by Friday"</span>
+        <textarea id="f-scribble" maxlength="500"></textarea></label>
+      <div class="dumpbar"><button type="button" class="btn" id="applyBtn">Rearrange card</button><button type="button" class="btn" id="handBtn">Hand to Virgil</button><span class="dumpstatus" id="applyStatus"></span></div>
+      <p class="hint" id="scribHint"><b>Rearrange card</b> changes dates, triggers and who's up, right here. <b>Hand to Virgil</b> is for real work (emails, research, drafts, forms): Virgil does it and writes back on the card. Closing the card keeps what you wrote.</p>
+    </div>
+    <label>What is it<input id="f-title" required maxlength="120"></label>
+    <label>Details<textarea id="f-detail" maxlength="600"></textarea></label>
+    <div class="two">
+      <label>Due date<input type="date" id="f-due"></label>
+      <label>Stakes
+        <select id="f-stakes"><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select>
+      </label>
+    </div>
+    <div class="two">
+      <label>Trigger date <span class="hint">turns red on this day</span><input type="date" id="f-redOn"></label>
+      <label>Whose move
+        <select id="f-who"><option value="you">Yours</option><option value="virgil">Virgil</option><option value="waiting">Waiting on someone</option></select>
+      </label>
+    </div>
+    <label id="waitWrap">Waiting on<input id="f-waitingOn" maxlength="60"></label>
+    <label>If it slips<input id="f-ifMissed" maxlength="200"></label>
+    <div class="two">
+      <label>Area<input id="f-area" maxlength="30" list="areas"></label>
+      <label>Status
+        <select id="f-status"><option value="active">Active</option><option value="parked">Parked</option><option value="done">Done</option></select>
+      </label>
+    </div>
+    <datalist id="areas"><option>Programs</option><option>People</option><option>Funding</option><option>Money</option><option>Partners</option><option>Tech</option><option>Admin</option><option>Personal</option></datalist>
+    <div class="actions">
+      <button type="button" class="btn danger" id="delBtn">Delete</button>
+      <div class="right">
+        <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  var notes=[], db=null, col=null, onlyMine=false, editing=null;
+  try{onlyMine=localStorage.getItem('wall-mine')==='1'}catch(e){}
+  var $=function(s){return document.querySelector(s)};
+  var RULES={high:{red:14,amber:30},med:{red:7,amber:21},low:{red:3,amber:10}};
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function today(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+  function parse(s){if(!s)return null;var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+  function daysTo(s){var d=parse(s);return d?Math.round((d-today())/864e5):null}
+  function fmt(s){var d=parse(s);return DAYS[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate()}
+  function leftLabel(n){if(n===0)return'today';if(n===1)return'tomorrow';if(n<0)return(-n)+(n===-1?' day late':' days late');return'in '+n+' days'}
+
+  function heat(n){
+    if(n.status==='done')return'done';
+    var r=RULES[n.stakes]||RULES.med, d=daysTo(n.due), t=daysTo(n.redOn);
+    if(t!==null&&t<=0)return'red';
+    // Waiting on someone or parked: only a trigger date can turn it red.
+    if(n.status==='parked'||n.who==='waiting')return'blue';
+    if(d!==null&&d<0)return'red';
+    if(d!==null&&d<=r.red)return'red';
+    if(d!==null&&d<=r.amber)return'amber';
+    return'yellow';
+  }
+  function tilt(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))|0;return((Math.abs(h)%7)-3)*0.6}
+
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+
+  function card(n,h){
+    var b=el('button','note '+h);b.type='button';b.style.setProperty('--tilt',tilt(n.id)+'deg');
+    var top=el('div','top');top.appendChild(el('span','area',n.area||''));
+    var whoTxt=n.who==='you'?'Yours':n.who==='virgil'?'Virgil':('Waiting'+(n.waitingOn?': '+n.waitingOn:''));
+    top.appendChild(el('span','who '+(n.who||''),whoTxt));b.appendChild(top);
+    b.appendChild(el('h3','',n.title||'Untitled'));
+    if(n.detail)b.appendChild(el('p','detail',n.detail));
+    if(n.scribble)b.appendChild(el('p','scribble',n.scribble));
+    if(n.askStatus==='queued'){var q=el('p','vq');q.appendChild(el('b','','With Virgil'));q.appendChild(document.createTextNode(n.ask||''));b.appendChild(q)}
+    if(n.virgilReply){var v=el('p','vreply');v.appendChild(el('b','','Virgil'));v.appendChild(document.createTextNode(n.virgilReply));b.appendChild(v)}
+    if(h==='red'&&n.ifMissed){var m=el('p','missed');m.appendChild(el('b','','If it slips'));m.appendChild(document.createTextNode(n.ifMissed));b.appendChild(m)}
+    var w=el('div','when');
+    if(n.due){w.appendChild(el('span','',fmt(n.due)));if(n.status!=='done')w.appendChild(el('span','left',leftLabel(daysTo(n.due))))}
+    else w.appendChild(el('span','',n.status==='done'?'':'No date'));
+    if(n.redOn&&n.status!=='done'){var t=daysTo(n.redOn);w.appendChild(el('span','trigger',t<=0?'Trigger passed '+fmt(n.redOn):'Trigger '+fmt(n.redOn)))}
+    b.appendChild(w);
+    b.addEventListener('click',function(){open(n)});
+    return b;
+  }
+
+  function sortKey(n){var d=daysTo(n.due),t=daysTo(n.redOn);var a=d===null?9999:d,c=t===null?9999:t;return Math.min(a,c)}
+
+  function render(){
+    var buckets={red:[],amber:[],yellow:[],blue:[],done:[]};
+    notes.forEach(function(n){if(onlyMine&&n.who!=='you'&&n.status!=='done')return;buckets[heat(n)].push(n)});
+    Object.keys(buckets).forEach(function(k){buckets[k].sort(function(a,b){return sortKey(a)-sortKey(b)})});
+    document.querySelectorAll('section.row').forEach(function(s){
+      var k=s.getAttribute('data-bucket'),g=s.querySelector('.grid');g.textContent='';
+      if(!buckets[k].length){g.appendChild(el('div','empty',notes.length?(k==='red'?'Nothing on fire.':'Nothing here.'):'Loading the wall…'))}
+      buckets[k].forEach(function(n){g.appendChild(card(n,k))});
+    });
+    var dg=$('#doneGrid');dg.textContent='';buckets.done.forEach(function(n){dg.appendChild(card(n,'done'))});
+    $('#doneCount').textContent='('+buckets.done.length+')';
+    var mine=notes.filter(function(n){var h=heat(n);return n.who==='you'&&(h==='red')}).length;
+    var s=$('#summary');s.textContent='';
+    [['red','On fire',buckets.red.length],['amber','Coming up',buckets.amber.length],['yellow','On the wall',buckets.yellow.length],['blue','Off your brain',buckets.blue.length]].forEach(function(x){
+      var p=el('span','pill');var d=el('span','dot');d.style.background='var(--'+x[0]+')';p.appendChild(d);p.appendChild(document.createTextNode(x[2]+' '+x[1].toLowerCase()));s.appendChild(p)});
+    if(notes.length){var p=el('span','pill');p.textContent=mine?(mine+(mine===1?' red note is yours':' red notes are yours')):'No red notes are yours';s.appendChild(p)}
+  }
+
+  function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true},2600)}
+
+  function open(n){
+    editing=n||null;
+    $('#formTitle').textContent=n?'Edit note':'New note';
+    $('#f-title').value=n?n.title||'':'';$('#f-detail').value=n?n.detail||'':'';
+    $('#f-due').value=n?n.due||'':'';$('#f-stakes').value=n?n.stakes||'med':'med';
+    $('#f-redOn').value=n?n.redOn||'':'';$('#f-who').value=n?n.who||'you':'you';
+    $('#f-waitingOn').value=n?n.waitingOn||'':'';$('#f-ifMissed').value=n?n.ifMissed||'':'';
+    $('#f-area').value=n?n.area||'':'';$('#f-status').value=n?n.status||'active':'active';
+    $('#f-scribble').value=n?n.scribble||'':'';$('#applyStatus').textContent='';
+    $('#quickRow').hidden=!n;
+    $('#delBtn').hidden=!n;syncWait();$('#sheet').hidden=false;(n?$('#f-scribble'):$('#f-title')).focus();
+  }
+  function formData(){
+    var keep={};
+    if(editing){['ask','askStatus','virgilReply'].forEach(function(k){if(editing[k])keep[k]=editing[k]})}
+    return Object.assign(keep,{title:$('#f-title').value.trim(),detail:$('#f-detail').value.trim(),due:$('#f-due').value,stakes:$('#f-stakes').value,redOn:$('#f-redOn').value,who:$('#f-who').value,waitingOn:$('#f-who').value==='waiting'?$('#f-waitingOn').value.trim():'',ifMissed:$('#f-ifMissed').value.trim(),area:$('#f-area').value.trim(),status:$('#f-status').value,scribble:$('#f-scribble').value.trim(),updatedAt:new Date().toISOString()});
+  }
+  function fillForm(n){
+    $('#f-title').value=n.title||'';$('#f-detail').value=n.detail||'';$('#f-due').value=n.due||'';$('#f-stakes').value=n.stakes||'med';
+    $('#f-redOn').value=n.redOn||'';$('#f-who').value=n.who||'you';$('#f-waitingOn').value=n.waitingOn||'';$('#f-ifMissed').value=n.ifMissed||'';
+    $('#f-area').value=n.area||'';$('#f-status').value=n.status||'active';syncWait();
+  }
+  function addDays(s,k){var d=parse(s)||today();d.setDate(d.getDate()+k);return iso(d)}
+  document.querySelectorAll('#quickRow [data-q]').forEach(function(b){b.addEventListener('click',function(){
+    if(!editing||!col)return;var d=formData(),q=b.getAttribute('data-q'),msg='';
+    if(q==='done'){d.status='done';msg='Marked done'}
+    if(q==='park'){d.status='parked';msg='Parked'}
+    if(q==='week'){d.due=d.due?addDays(d.due,7):addDays('',7);if(d.redOn)d.redOn=addDays(d.redOn,7);d.status='active';msg='Pushed to '+fmt(d.due)}
+    if(q==='urgent'){d.stakes='high';d.status='active';if(!d.redOn||daysTo(d.redOn)>0)d.redOn=iso(today());msg='Made urgent'}
+    col.doc(editing.id).set(d).then(function(){toast(msg);close()}).catch(function(){toast('Could not save.')});
+  })});
+  // Rewrite the card from the note and save it, in one step. If rewriting fails, the note is saved on the card for Virgil.
+  function applyAndSave(ask,cur){
+    var ref=editing?col.doc(editing.id):col.doc();
+    function keep(){var d=Object.assign({},cur,{scribble:ask,updatedAt:new Date().toISOString()});return ref.set(d).then(function(){toast('Saved your note on the card. Virgil will handle it.');close()})}
+    if(!sample)return keep();
+    var others=notes.filter(function(x){return !editing||x.id!==editing.id}).map(function(n){return {title:n.title,due:n.due}});
+    var prompt=buildPrompt(cur,others,ask);
+    return sample.json(prompt,{modelTier:'default'}).then(function(res){
+      if(!res||typeof res!=='object')throw {};
+      var d=clean(Object.assign({},cur,res));d.scribble='';d.updatedAt=new Date().toISOString();
+      return ref.set(d).then(function(){toast('Done: '+(d.who==='waiting'?'waiting'+(d.waitingOn?' on '+d.waitingOn:''):d.due?'due '+fmt(d.due):'updated')+(d.redOn?', turns red '+fmt(d.redOn):''));close()});
+    },function(){return keep()});
+  }
+  // Hand a card to Virgil: queue the instruction on the card, then ring Virgil if the doorbell is wired.
+  var WALL_TASK='';  // optional: a scheduled-task id that wakes Virgil the moment a card is handed over. Empty = Virgil picks it up at the start of your next conversation.
+  var mcp=null;
+  $('#handBtn').addEventListener('click',function(){
+    var ask=$('#f-scribble').value.trim();
+    if(!ask){$('#applyStatus').textContent='Write what you want Virgil to do first.';return}
+    if(!col){$('#applyStatus').textContent='Saving needs the live page. Reload and try again.';return}
+    var btn=this;btn.disabled=true;$('#applyStatus').textContent='Handing it over…';
+    var d=formData();d.scribble='';d.ask=ask;d.askStatus='queued';
+    var ref=editing?col.doc(editing.id):col.doc();
+    ref.set(d).then(function(){
+      var id=ref.id;
+      if(mcp&&WALL_TASK){
+        return mcp.callTool('Claude Code Remote','fire_trigger',{trigger_id:WALL_TASK,text:'Card handed over just now: notes/'+id+'. Do this card first.'})
+          .then(function(){toast('Handed to Virgil. He\'s on it now.');close()},
+                function(){toast('Saved for Virgil. He\'ll pick it up on his next pass.');close()});
+      }
+      toast('Saved for Virgil. He\'ll do it at the start of your next conversation.');close();
+    }).catch(function(){$('#applyStatus').textContent='Couldn\'t save. Check your connection and try again.'}).then(function(){btn.disabled=false});
+  });
+  function buildPrompt(cur,others,ask){
+    return 'You edit one post-it note on a founder\'s task wall. Today is '+iso(today())+' ('+DAYS[today().getDay()]+').\n'+
+      'Fields: title, detail, area, due (YYYY-MM-DD or ""), stakes (high|med|low), redOn (YYYY-MM-DD trigger date when the note turns red regardless, or ""), who (you|virgil|waiting), waitingOn, ifMissed (one short sentence), status (active|parked|done).\n'+
+      'Apply his instruction to the note. Resolve relative dates against today; if he refers to another note\'s date, use that note\'s due date from the list. "Waiting on X" or "waiting til X" means who=waiting, waitingOn=X, and if he gives no date set redOn to 7 days from today so it comes back if X goes quiet. "Bug X if nothing by D" means who=waiting, waitingOn=X, redOn=D. Fold his context into detail in one plain sentence. Keep everything he didn\'t ask to change.\n'+
+      'Return JSON only: the full updated note object.\n\nNote:\n'+JSON.stringify(cur)+'\n\nOther notes on the wall:\n'+JSON.stringify(others)+'\n\nHis instruction:\n'+ask;
+  }
+  $('#applyBtn').addEventListener('click',function(){
+    var ask=$('#f-scribble').value.trim();if(!ask){$('#applyStatus').textContent='Write what should change first.';return}
+    if(!col){$('#applyStatus').textContent='Saving needs the live page. Reload and try again.';return}
+    var btn=this;btn.disabled=true;$('#applyStatus').textContent='Working…';
+    var cur=formData();delete cur.updatedAt;delete cur.scribble;
+    if(editing){if(editing.ask)cur.ask=editing.ask;if(editing.askStatus)cur.askStatus=editing.askStatus;if(editing.virgilReply)cur.virgilReply=editing.virgilReply}
+    applyAndSave(ask,cur).catch(function(){$('#applyStatus').textContent='Couldn\'t save. Check your connection and tap Do it again.'}).then(function(){btn.disabled=false});
+  });
+  function close(){$('#sheet').hidden=true;editing=null}
+  // Any way of closing keeps an unsaved note written on the card.
+  function closeKeep(){
+    var ask=$('#f-scribble').value.trim();
+    if(editing&&col&&ask&&ask!==(editing.scribble||'')){
+      var id=editing.id;col.doc(id).update({scribble:ask,updatedAt:new Date().toISOString()}).then(function(){toast('Kept your note on the card')}).catch(function(){toast('Couldn\'t keep that note. Open the card and tap Do it.')});
+    }
+    close();
+  }
+  function syncWait(){$('#waitWrap').hidden=$('#f-who').value!=='waiting'}
+  $('#f-who').addEventListener('change',syncWait);
+  $('#cancelBtn').addEventListener('click',closeKeep);
+  $('#xBtn').addEventListener('click',closeKeep);
+  $('#sheet').addEventListener('click',function(e){if(e.target.id==='sheet')closeKeep()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#sheet').hidden)closeKeep()});
+  $('#addBtn').addEventListener('click',function(){open(null)});
+  $('#mineBtn').setAttribute('aria-pressed',String(onlyMine));
+  $('#mineBtn').addEventListener('click',function(){onlyMine=!onlyMine;this.setAttribute('aria-pressed',String(onlyMine));try{localStorage.setItem('wall-mine',onlyMine?'1':'0')}catch(e){}render()});
+
+  $('#form').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!col){toast('Saving needs the live page. Try again in a moment.');return}
+    var data=formData();
+    if(data.scribble&&data.scribble!==((editing&&editing.scribble)||'')){
+      var ask=data.scribble;delete data.scribble;delete data.updatedAt;$('#saveBtn').disabled=true;$('#applyStatus').textContent='Working…';
+      applyAndSave(ask,data).catch(function(){toast('Could not save. Try again.')}).then(function(){$('#saveBtn').disabled=false});
+      return;
+    }
+    var ref=editing?col.doc(editing.id):col.doc();
+    $('#saveBtn').disabled=true;
+    ref.set(data).then(function(){toast(editing?'Saved':'Added to the wall');close()}).catch(function(err){toast(err&&err.code==='invalid_argument'?'You can view this wall but not change it.':'Could not save. Try again.')}).then(function(){$('#saveBtn').disabled=false});
+  });
+  $('#delBtn').addEventListener('click',function(){
+    if(!editing||!col)return;
+    var b=this;if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='Tap again to delete';setTimeout(function(){b.dataset.armed='';b.textContent='Delete'},3000);return}
+    col.doc(editing.id).delete().then(function(){toast('Deleted');close()}).catch(function(){toast('Could not delete.')});
+    b.dataset.armed='';b.textContent='Delete';
+  });
+
+  // ---- Brain dump ----
+  var sample=null, proposal=[], inbox=null;
+  function setStatus(t){$('#dumpStatus').textContent=t||''}
+  function clean(n){
+    var ok=function(s){return /^\d{4}-\d{2}-\d{2}$/.test(s||'')?s:''};
+    return {title:String(n.title||'').slice(0,120)||'Untitled',detail:String(n.detail||'').slice(0,600),area:String(n.area||'').slice(0,30),
+      due:ok(n.due),stakes:['high','med','low'].indexOf(n.stakes)>=0?n.stakes:'med',redOn:ok(n.redOn),
+      who:['you','virgil','waiting'].indexOf(n.who)>=0?n.who:'you',waitingOn:String(n.waitingOn||'').slice(0,60),
+      ifMissed:String(n.ifMissed||'').slice(0,200),scribble:String(n.scribble||'').slice(0,500),status:['active','parked','done'].indexOf(n.status)>=0?n.status:'active'};
+  }
+  function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function showProposal(){
+    var g=$('#propGrid');g.textContent='';
+    proposal.forEach(function(p){
+      var n=p.note,h=heat(n);var c=card(Object.assign({id:p.id||('new-'+Math.random())},n),h);
+      c.disabled=true;c.style.cursor='default';
+      if(p.id){var tag=el('span','who','Update');c.querySelector('.top').appendChild(tag)}
+      g.appendChild(c)});
+    $('#proposal').hidden=!proposal.length;
+  }
+  $('#sortBtn').addEventListener('click',function(){
+    var text=$('#dumpText').value.trim();if(!text){setStatus('Write something first.');return}
+    if(!sample){setStatus('Sorting isn\'t available in this view. Use Save for Virgil.');return}
+    var btn=this;btn.disabled=true;setStatus('Sorting…');
+    var wall=notes.map(function(n){return {id:n.id,title:n.title,due:n.due,stakes:n.stakes,redOn:n.redOn,who:n.who,waitingOn:n.waitingOn,status:n.status}});
+    var prompt='You sort a busy nonprofit leader\'s brain dump into post-it notes for their wall. Today is '+iso(today())+' ('+DAYS[today().getDay()]+').\n'+
+      'Rules: split the dump into separate tasks. For each, return a note with: title (short, starts with a verb or a name), detail (one or two plain sentences), area (one word, like Programs, People, Funding, Money, Partners, Tech, Admin or Personal), due (YYYY-MM-DD or ""), stakes ("high","med","low": how bad it is if it slips), redOn (YYYY-MM-DD trigger date when it should turn red regardless, e.g. "if no answer by Friday" -> that Friday; else ""), who ("you" if the founder must act, "virgil" if his AI assistant can do it, "waiting" if someone else must act), waitingOn (name, if waiting), ifMissed (one short sentence: the consequence), status ("active" or "parked").\n'+
+      'Resolve relative dates ("Friday", "next week", "the 22nd") against today. If a task clearly updates a note already on the wall, include "id" with that note\'s id and give the full updated note.\n'+
+      'Return JSON only: {"notes":[...]}\n\nNotes already on the wall:\n'+JSON.stringify(wall)+'\n\nBrain dump:\n'+text;
+    sample.json(prompt,{modelTier:'default'}).then(function(res){
+      var list=(res&&res.notes)||[];
+      proposal=list.map(function(n){var id=n.id&&notes.some(function(x){return x.id===n.id})?n.id:null;
+        var base=id?Object.assign({},notes.filter(function(x){return x.id===id})[0]):{};delete base.id;
+        return {id:id,note:clean(Object.assign(base,n))}});
+      setStatus(proposal.length?'':'Nothing to pin in that.');showProposal();
+    }).catch(function(e){setStatus(e&&e.code==='rate_limited'?'Too many sorts at once. Wait a minute.':'Couldn\'t sort that. Save for Virgil instead.')}).then(function(){btn.disabled=false});
+  });
+  $('#discardBtn').addEventListener('click',function(){proposal=[];showProposal()});
+  $('#pinAllBtn').addEventListener('click',function(){
+    if(!col){setStatus('Saving needs the live page.');return}
+    var btn=this;btn.disabled=true;var stamp=new Date().toISOString();
+    var chain=Promise.resolve();
+    proposal.forEach(function(p){chain=chain.then(function(){var d=Object.assign({},p.note,{updatedAt:stamp});return (p.id?col.doc(p.id):col.doc()).set(d)})});
+    chain.then(function(){toast('Pinned '+proposal.length+(proposal.length===1?' note':' notes'));proposal=[];showProposal();$('#dumpText').value='';setStatus('')})
+      .catch(function(){setStatus('Some notes didn\'t save. Try again.')}).then(function(){btn.disabled=false});
+  });
+  $('#saveDumpBtn').addEventListener('click',function(){
+    var text=$('#dumpText').value.trim();if(!text){setStatus('Write something first.');return}
+    if(!inbox){setStatus('Saving needs the live page.');return}
+    var btn=this;btn.disabled=true;
+    inbox.doc().set({text:text,createdAt:new Date().toISOString(),status:'new'}).then(function(){$('#dumpText').value='';setStatus('Saved. Ask Virgil to "sort my inbox".')})
+      .catch(function(){setStatus('Couldn\'t save. Try again.')}).then(function(){btn.disabled=false});
+  });
+  function renderInbox(items){
+    var box=$('#inboxList');box.textContent='';
+    var open=items.filter(function(i){return i.status==='new'});
+    if(!open.length){box.hidden=true;return}
+    box.hidden=false;box.appendChild(el('b','','Waiting for Virgil to sort ('+open.length+')'));
+    var ul=el('ul');open.forEach(function(i){ul.appendChild(el('li','',i.text.length>140?i.text.slice(0,140)+'…':i.text))});box.appendChild(ul);
+  }
+
+  render();
+  // Re-check heat at midnight-ish so notes redden without a reload.
+  setInterval(render,30*60*1000);
+
+  if(window.claude&&window.claude.use){
+    window.claude.use('db').then(function(d){
+      db=d;
+      if(!db){document.querySelectorAll('.empty').forEach(function(e){e.textContent='Open this wall signed in to see the notes.'});return}
+      col=db.collection('notes');
+      col.onSnapshot(function(snap){
+        notes=snap.docs.map(function(doc){var x=Object.assign({},doc.data());x.id=doc.id;return x});
+        render();
+        if(!notes.length)document.querySelectorAll('.empty').forEach(function(e){e.textContent='No notes yet. Tap “+ New note” to pin the first one.'});
+      },function(){toast('Lost the connection to the wall. Reload to reconnect.')});
+      inbox=db.collection('inbox');
+      inbox.onSnapshot(function(snap){renderInbox(snap.docs.map(function(d){var x=Object.assign({},d.data());x.id=d.id;return x}))},function(){});
+    });
+    window.claude.use('sample').then(function(s){sample=s;if(!s){$('#sortBtn').hidden=true}});
+  }
+})();
+</script>
+
+</body></html>
